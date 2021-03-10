@@ -22,8 +22,10 @@ func (service *Service) RunPageSpeed(config *RunPageSpeedConfig) (*[]byte, *erro
 	values.Set("url", config.URL)
 
 	requestConfig := go_http.RequestConfig{
-		URL: service.url(fmt.Sprintf("runPagespeed/?%s", values.Encode())),
+		URL:           service.url(fmt.Sprintf("runPagespeed/?%s", values.Encode())),
+		ResponseModel: nil,
 	}
+	fmt.Println(service.url(fmt.Sprintf("runPagespeed/?%s", values.Encode())))
 
 	_, response, e := service.get(&requestConfig)
 	if e != nil {
