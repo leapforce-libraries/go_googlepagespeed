@@ -9,8 +9,33 @@ import (
 	go_http "github.com/leapforce-libraries/go_http"
 )
 
+type Category string
+
+const (
+	CategoryUnspecified   Category = "CATEGORY_UNSPECIFIED"
+	CategoryAccessibility Category = "ACCESSIBILITY"
+	CategoryBestPractices Category = "BEST_PRACTICES"
+	CategoryPerfomance    Category = "PERFORMANCE"
+	CategoryPWA           Category = "PWA"
+	CategorySEO           Category = "SEO"
+)
+
+type Strategy string
+
+const (
+	StrategyUnspecified Strategy = "STRATEGY_UNSPECIFIED"
+	StrategyDesktop     Strategy = "DESKTOP"
+	StrategyMobile      Strategy = "MOBILE"
+)
+
 type RunPageSpeedConfig struct {
-	URL string
+	Category     *Category
+	Locale       *string
+	Strategy     *Strategy
+	URL          string
+	UTMCampaign  *string
+	UTMSource    *string
+	CaptchaToken *string
 }
 
 func (service *Service) RunPageSpeed(config *RunPageSpeedConfig) (*[]byte, *errortools.Error) {
@@ -20,6 +45,30 @@ func (service *Service) RunPageSpeed(config *RunPageSpeedConfig) (*[]byte, *erro
 
 	values := url.Values{}
 	values.Set("url", config.URL)
+
+	if config.Category != nil {
+		values.Set("category", string(*config.Category))
+	}
+
+	if config.Locale != nil {
+		values.Set("locale", string(*config.Locale))
+	}
+
+	if config.Strategy != nil {
+		values.Set("strategy", string(*config.Strategy))
+	}
+
+	if config.UTMCampaign != nil {
+		values.Set("utm_campaign", string(*config.UTMCampaign))
+	}
+
+	if config.UTMSource != nil {
+		values.Set("utm_source", string(*config.UTMSource))
+	}
+
+	if config.CaptchaToken != nil {
+		values.Set("captchaToken", string(*config.CaptchaToken))
+	}
 
 	requestConfig := go_http.RequestConfig{
 		URL:           service.url(fmt.Sprintf("runPagespeed/?%s", values.Encode())),
