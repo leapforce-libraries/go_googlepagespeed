@@ -2,7 +2,6 @@ package googlepagespeed
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/url"
 
 	errortools "github.com/leapforce-libraries/go_errortools"
@@ -15,7 +14,7 @@ const (
 	CategoryUnspecified   Category = "CATEGORY_UNSPECIFIED"
 	CategoryAccessibility Category = "ACCESSIBILITY"
 	CategoryBestPractices Category = "BEST_PRACTICES"
-	CategoryPerfomance    Category = "PERFORMANCE"
+	CategoryPerformance   Category = "PERFORMANCE"
 	CategoryPWA           Category = "PWA"
 	CategorySEO           Category = "SEO"
 )
@@ -38,7 +37,17 @@ type RunPageSpeedConfig struct {
 	CaptchaToken *string
 }
 
-func (service *Service) RunPageSpeed(config *RunPageSpeedConfig) (*[]byte, *errortools.Error) {
+type PageSpeed struct {
+	LighthouseResult struct {
+		Categories struct {
+			Performance struct {
+				Score float64 `json:"score"`
+			} `json:"performance"`
+		} `json:"categories"`
+	} `json:"lighthouseResult"`
+}
+
+func (service *Service) RunPageSpeed(config *RunPageSpeedConfig) (*PageSpeed, *errortools.Error) {
 	if config == nil {
 		return nil, errortools.ErrorMessage("RunPageSpeedConfig must not be a nil pointer")
 	}
@@ -70,30 +79,17 @@ func (service *Service) RunPageSpeed(config *RunPageSpeedConfig) (*[]byte, *erro
 		values.Set("captchaToken", string(*config.CaptchaToken))
 	}
 
+	pageSpeed := PageSpeed{}
+
 	requestConfig := go_http.RequestConfig{
 		URL:           service.url(fmt.Sprintf("runPagespeed/?%s", values.Encode())),
-		ResponseModel: nil,
+		ResponseModel: &pageSpeed,
 	}
-	fmt.Println(service.url(fmt.Sprintf("runPagespeed/?%s", values.Encode())))
 
-	_, response, e := service.get(&requestConfig)
+	_, _, e := service.get(&requestConfig)
 	if e != nil {
 		return nil, e
 	}
 
-	if response == nil {
-		return nil, errortools.ErrorMessage("Nil response returned")
-	}
-	if response.Body == nil {
-		return nil, errortools.ErrorMessage("Nil response body returned")
-	}
-
-	defer response.Body.Close()
-
-	b, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, errortools.ErrorMessage(err)
-	}
-
-	return &b, nil
+	return &pageSpeed, nil
 }
