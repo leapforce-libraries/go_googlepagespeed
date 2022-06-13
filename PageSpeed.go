@@ -16,8 +16,8 @@ const (
 	CategoryAccessibility Category = "ACCESSIBILITY"
 	CategoryBestPractices Category = "BEST_PRACTICES"
 	CategoryPerformance   Category = "PERFORMANCE"
-	CategoryPWA           Category = "PWA"
-	CategorySEO           Category = "SEO"
+	CategoryPwa           Category = "PWA"
+	CategorySeo           Category = "SEO"
 )
 
 type Strategy string
@@ -32,9 +32,9 @@ type RunPageSpeedConfig struct {
 	Category     *Category
 	Locale       *string
 	Strategy     *Strategy
-	URL          string
-	UTMCampaign  *string
-	UTMSource    *string
+	Url          string
+	UtmCampaign  *string
+	UtmSource    *string
 	CaptchaToken *string
 }
 
@@ -54,7 +54,7 @@ func (service *Service) RunPageSpeed(config *RunPageSpeedConfig) (*PageSpeed, *e
 	}
 
 	values := url.Values{}
-	values.Set("url", config.URL)
+	values.Set("url", config.Url)
 
 	if config.Category != nil {
 		values.Set("category", string(*config.Category))
@@ -68,12 +68,12 @@ func (service *Service) RunPageSpeed(config *RunPageSpeedConfig) (*PageSpeed, *e
 		values.Set("strategy", string(*config.Strategy))
 	}
 
-	if config.UTMCampaign != nil {
-		values.Set("utm_campaign", string(*config.UTMCampaign))
+	if config.UtmCampaign != nil {
+		values.Set("utm_campaign", string(*config.UtmCampaign))
 	}
 
-	if config.UTMSource != nil {
-		values.Set("utm_source", string(*config.UTMSource))
+	if config.UtmSource != nil {
+		values.Set("utm_source", string(*config.UtmSource))
 	}
 
 	if config.CaptchaToken != nil {
@@ -84,7 +84,7 @@ func (service *Service) RunPageSpeed(config *RunPageSpeedConfig) (*PageSpeed, *e
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodGet,
-		URL:           service.url(fmt.Sprintf("runPagespeed/?%s", values.Encode())),
+		Url:           service.url(fmt.Sprintf("runPagespeed/?%s", values.Encode())),
 		ResponseModel: &pageSpeed,
 	}
 
